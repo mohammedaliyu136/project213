@@ -101,7 +101,7 @@ class _ConnectState extends State<Connect> {
                 'name': nameController.text,
                 'email': emailController.text,
                 'comment': commentController.text,
-                  });
+                  }).then((value) => Navigator.pop(context));
             },
             color: Colors.blue,
             )

@@ -168,10 +168,10 @@ class _IncidentDetailState extends State<IncidentDetail> {
                                     Container(
                                       height: 40, width: 40,
                                       decoration: BoxDecoration(
-                                        color: Colors.black54,
+                                        color: Colors.transparent,
                                         borderRadius: BorderRadius.all(Radius.circular(10)),
                                       ),
-                                      child: Icon(Ionicons.ios_trash, color: Colors.white70, size: 30,),
+                                      child: Icon(Ionicons.ios_trash, color: Colors.transparent, size: 100,),
                                     ),
                                   ],
                                 )

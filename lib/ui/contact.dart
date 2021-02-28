@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'add_contact.dart';
 
@@ -12,14 +13,41 @@ class Contact extends StatefulWidget {
 }
 
 class _ContactState extends State<Contact> {
+  TextEditingController nameController = TextEditingController();
   FocusNode myFocusNode;
   bool status = false;
   bool emergency_tab = true;
   bool friend_tab = false;
+  String name="";
+  String contact_fullname = "";
+  String contact_phonenumber = "";
+  String contact_relationship = "";
+  getCredential()async{
+    Future<SharedPreferences> sharedPreferences = SharedPreferences.getInstance();
+    await sharedPreferences.then((value) => setState(() {
+      name = value.getString("name");
+      print(name);
+      nameController = new TextEditingController(text: name);
+    }));
+    await sharedPreferences.then((value) => setState(() {contact_fullname = value.getString("contact_fullname")??"";}));
+    await sharedPreferences.then((value) => setState(() {contact_phonenumber = value.getString("contact_phonenumber")??"";}));
+    await sharedPreferences.then((value) => setState(() {contact_relationship = value.getString("contact_relationship")??"";}));
+  }
+  deleteContact()async{
+    Future<SharedPreferences> sharedPreferences = SharedPreferences.getInstance();
+    await sharedPreferences.then((value) => value.setString("contact_fullname", ""));
+    await sharedPreferences.then((value) => value.setString("contact_phonenumber", ""));
+    await sharedPreferences.then((value) => value.setString("contact_relationship", ""));
+    setState(() {
+      contact_fullname = "";
+      contact_phonenumber = "";
+      contact_relationship = "";
+    });
+  }
   @override
   void initState() {
     super.initState();
-
+    getCredential();
     myFocusNode = FocusNode();
   }
 
@@ -43,7 +71,7 @@ class _ContactState extends State<Contact> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => AddContact()),
-                  );
+                  ).then((value) => getCredential());
                 },
             ),
             SizedBox(width: 40,)
@@ -57,7 +85,18 @@ class _ContactState extends State<Contact> {
             ),
             Padding(
               padding: const EdgeInsets.only(left:18.0, bottom:10),
-              child: Text("Mohammed Aliyu", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.white,),),
+              child: TextField(
+                controller: nameController,
+                style: TextStyle(color: Colors.white,fontSize: 20,fontWeight: FontWeight.w500,),
+                decoration: InputDecoration(
+                  //border: InputBorder.none,
+                    border: InputBorder.none,
+                    fillColor: Colors.white,
+                    focusColor: Colors.white,
+                    hintStyle: TextStyle(color: Colors.white38, fontSize: 20,fontWeight: FontWeight.w300,),
+                    hintText: 'Enter your name...'
+                ),
+              ),
             ),
             SizedBox(height: 1, child:Container(color: Colors.white60,),),
             SizedBox(height: 10,),
@@ -75,45 +114,29 @@ class _ContactState extends State<Contact> {
                 },
                 child: Column(
                   children: [
-                    Text("Emergency", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: emergency_tab?Colors.white70:Colors.white38,)),
+                    Text("Emergency Contacts", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: emergency_tab?Colors.white70:Colors.white38,)),
                     SizedBox(height: 7,),
-                    Container(height: 7, width: 7, decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: emergency_tab?Colors.blue:Colors.transparent),),
+                    Container(height: 5, width: 100, decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: emergency_tab?Colors.blue:Colors.transparent),),
                   ],
                 ),
-              ),SizedBox(width: 20,),
-              GestureDetector(
-                onTap: (){
-                  if(!friend_tab){
-                    setState(() {
-                      friend_tab = !friend_tab;
-                      emergency_tab = !emergency_tab;
-                    });
-                  }
-                },
-                child: Column(
-                  children: [
-                    Text("Friends", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: friend_tab?Colors.white70:Colors.white38,)),
-                    SizedBox(height: 7,),
-                    Container(height: 7, width: 7, decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: friend_tab?Colors.blue:Colors.transparent),),
-                  ],
-                ),
-              ),],),
-            SizedBox(height: 30,),
+              ),SizedBox(width: 10,),],),
+            SizedBox(height: 20,),
             Text("Your emergency contact will always receive text notification if you created an incident.", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Colors.white70,),),
             SizedBox(height: 15,),
-            friend_tab?ListTile(title: Row(
+            contact_fullname.isNotEmpty?ListTile(title: Row(
               children: [
-                Text("Mohammed Aliyu", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white70,),),
-                Text(" (Friend)", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: Colors.white70,),),
+                Text(contact_fullname, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white70,),),
+                Text(" (${contact_relationship})", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: Colors.white70,),),
               ],
             ),
-              trailing: Icon(Ionicons.ios_trash, color: Colors.white70,),
+              trailing: GestureDetector(child: Container(height:50,width:50,child: Icon(Ionicons.ios_trash, color: Colors.white70,)), onTap: (){deleteContact();},),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 5,),
-                  Text("080332493840", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: Colors.white70,),),
+                  Text(contact_phonenumber, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: Colors.white70,),),
                   SizedBox(height: 5,),
+                  /*
                   Row(
                     children: [
                       FlutterSwitch(showOnOff: false, activeTextColor: Colors.black, inactiveTextColor: Colors.blue[50], value: status,
@@ -126,38 +149,9 @@ class _ContactState extends State<Contact> {
                       SizedBox(width: 10,),
                       Text("Notification", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: Colors.white70,),),
                     ],
-                  )
-              ],),
-            ):Container(),
-            friend_tab?SizedBox(height: 15,):Container(),
-            ListTile(title: Row(
-              children: [
-                Text("Musa Ibrahim", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white70,),),
-                Text(" (Brother)", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: Colors.white70,),),
-              ],
-            ),
-              trailing: Icon(Ionicons.ios_trash, color: Colors.white70,),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 5,),
-                  Text("070332113840", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: Colors.white70,),),
-                  SizedBox(height: 5,),
-                  Row(
-                    children: [
-                      FlutterSwitch(showOnOff: false, activeTextColor: Colors.black, inactiveTextColor: Colors.blue[50], value: status,
-                        onToggle: (val) {
-                          setState(() {
-                            status = val;
-                          });
-                        },
-                      ),
-                      SizedBox(width: 10,),
-                      Text("Notification", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: Colors.white70,),),
-                    ],
-                  )
+                  )*/
                 ],),
-            ),
+            ):Container(),
 
           ],),
         ),

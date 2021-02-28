@@ -41,11 +41,22 @@ dependencies:
   firebase: ^7.3.2
   cached_network_image: ^2.3.3
   shared_preferences: ^0.5.12+4
+  provider: ^3.0.0
+  bottom_drawer: ^0.0.2
+  flutter_sms: ^2.1.1
+  telephony: ^0.0.6
+  geocoder: ^0.2.1
   #firebase_crashlytics: ^0.1.1+1
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.7.4
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  image_path: 'assets/images/logo.png'
+  android: true
+  ios: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -72,6 +83,7 @@ flutter:
     - assets/images/criminal.png
     - assets/images/fire_and_smoke.png
     - assets/images/hazardous_materials.png
+    - assets/images/lost_item.png
     - assets/images/medical.png
     - assets/images/suspicious_activity.png
     - assets/images/vehicle.png
@@ -85,6 +97,12 @@ flutter:
     - assets/images/intro_2.png
     - assets/images/intro_3.png
     - assets/images/intro_4.png
+    - assets/images/emoji/e1.png
+    - assets/images/emoji/e1_2.png
+    - assets/images/emoji/e2.png
+    - assets/images/emoji/e2_2.png
+    - assets/images/emoji/e3.png
+    - assets/images/emoji/e3_2.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

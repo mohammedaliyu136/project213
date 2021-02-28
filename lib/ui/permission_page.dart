@@ -45,7 +45,7 @@ class _PermissionPageState extends State<PermissionPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [RaisedButton(child: Text("Next"),onPressed: (){
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => SignUp()),
                 );

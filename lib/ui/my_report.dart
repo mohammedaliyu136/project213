@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'incident_detail.dart';
 
@@ -13,16 +14,22 @@ class MyReport extends StatefulWidget {
 
 class _MyReportState extends State<MyReport> {
   List<DocumentSnapshot> incidents_list = [];
-  @override
-  void initState() {
-    // TODO: implement initState .where('restaurant_id', isEqualTo: document.documentID)
-    Firestore.instance.collection('incidents').getDocuments().then(
+  String username;
+  getCredential()async{
+    Future<SharedPreferences> sharedPreferences = SharedPreferences.getInstance();
+    await sharedPreferences.then((value) => setState(() {username = value.getString("username");}));
+    Firestore.instance.collection('incidents').where("username", isEqualTo: username).getDocuments().then(
             (val)async{
           setState(() {
             incidents_list = val.documents;
           });
         }
     );
+  }
+  @override
+  void initState() {
+    // TODO: implement initState .where('restaurant_id', isEqualTo: document.documentID)
+    getCredential();
     super.initState();
   }
   @override

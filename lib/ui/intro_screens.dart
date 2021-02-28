@@ -1,6 +1,9 @@
+import 'package:Alert/ui/permission_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'sign_up.dart';
 
 class IntroScreens extends StatefulWidget {
   IntroScreens({Key key}) : super(key: key);
@@ -78,7 +81,15 @@ class _IntroScreensState extends State<IntroScreens> {
               Row(children: [
                 Expanded(
                   flex: 1,
-                    child: Text("Skip", style: TextStyle(color: Colors.white),)
+                    child: GestureDetector(
+                        onTap: () async {
+                          await setVisited();
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => PermissionPage()),
+                          );
+                        },
+                        child: Text("Skip", style: TextStyle(color: Colors.white),))
                 ),
                 Expanded(
                   flex: 8,
@@ -108,7 +119,13 @@ class _IntroScreensState extends State<IntroScreens> {
                       });
                     },
                     child: Container(height: 45, width: 50, color: Colors.white, child: Icon(Ionicons.ios_arrow_forward, size: 35,),)):GestureDetector(
-                    onTap: (){},
+                    onTap: ()async{
+                      await setVisited();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => PermissionPage()),
+                      );
+                    },
                     child: Container(height: 45, width: 50, color: Colors.white, child:Icon(Ionicons.ios_arrow_forward, size: 35,))),
               ],),
               SizedBox(height: 0,),
