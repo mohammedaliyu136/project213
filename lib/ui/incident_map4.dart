@@ -339,7 +339,7 @@ class MapSampleState extends State<MapSample> {
                     height: 30,
                     width: 30,
                     point: LatLng(incident["latitude"], incident["longitude"]),
-                    builder: (ctx) => Icon(Icons.pin_drop, color: int.parse(incident["num_killed"])>0?Colors.red:Colors.deepPurpleAccent,),
+                    builder: (ctx) => Icon(Icons.pin_drop),
                   )
               );
             });
@@ -356,9 +356,8 @@ class MapSampleState extends State<MapSample> {
     return new Scaffold(
       body: position!=null?FlutterMap(
         options: MapOptions(
-          //center: LatLng(position.latitude, position.longitude), 9.0852, 7.4899
-          center: LatLng(9.0852, 7.4899),
-          zoom: 12,
+          center: LatLng(position.latitude, position.longitude),
+          zoom: 5,
           plugins: [
             MarkerClusterPlugin(),
           ],
@@ -368,15 +367,15 @@ class MapSampleState extends State<MapSample> {
         layers: [
           TileLayerOptions(
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: ['a', 'b', 'c'],
+            subdomains: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
           ),
           MarkerClusterLayerOptions(
-            maxClusterRadius: 14,
-            disableClusteringAtZoom: 20,
-            size: Size(20, 20),
+            maxClusterRadius: 1,
+            disableClusteringAtZoom: 2,
+            size: Size(40, 40),
             anchor: AnchorPos.align(AnchorAlign.center),
             fitBoundsOptions: FitBoundsOptions(
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.all(50),
             ),
             markers: markers,
             polygonOptions: PolygonOptions(
@@ -384,7 +383,7 @@ class MapSampleState extends State<MapSample> {
                 color: Colors.black12,
                 borderStrokeWidth: 3),
             popupOptions: PopupOptions(
-                popupSnap: PopupSnap.markerCenter,
+                popupSnap: PopupSnap.markerTop,
                 popupController: _popupController,
                 popupBuilder: (_, marker) => Container(
                   width: 200,
@@ -399,9 +398,8 @@ class MapSampleState extends State<MapSample> {
                 )),
             builder: (context, markers) {
               return FloatingActionButton(
-                child: Text(markers.length.toString(), style: TextStyle(color: markers.length<=2?Colors.black54:Colors.white),),
+                child: Text(markers.length.toString()),
                 onPressed: null,
-                backgroundColor: markers.length<=2?Colors.yellow:markers.length<=5?Colors.orange:Colors.red,
               );
             },
           ),

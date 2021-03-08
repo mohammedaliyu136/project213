@@ -7,13 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:geolocator/geolocator.dart';
-//import 'package:geolocator/geolocator.dart';
-//import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
-import 'package:latlong/latlong.dart';
+//import 'package:clustering_google_maps/clustering_google_maps.dart' show LatLngAndGeohash,ClusteringHelper,AggregationSetup;
 
 import 'dart:ui' as ui;
 
@@ -228,11 +225,22 @@ class MapSample extends StatefulWidget {
 
 class MapSampleState extends State<MapSample> {
   //MapSampleState(this.incidents_list);
-  final PopupController _popupController = PopupController();
+  //ClusteringHelper clusteringHelper;
 
   List<DocumentSnapshot> incidents_list_2 = [];
-  List<Marker> markers = [];
+  Set<Marker> markers = {};
   Position position;
+  double lat;
+  double lon;
+  Completer<GoogleMapController> _controller = Completer();
+
+  static final CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(37.42796133580664, -122.085749655962),
+    //target: LatLng(lat, lon),
+    zoom: 14.4746,
+  );
+
+  CameraPosition _kLake;
   /*
   CameraPosition _kLake = CameraPosition(
       bearing: 192.8334901395799,
@@ -245,14 +253,13 @@ class MapSampleState extends State<MapSample> {
     Position _position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState((){
       position = _position;
-      /*
       _kLake = CameraPosition(
           bearing: 192.8334901395799,
           target: LatLng(position.latitude, position.longitude),
           //tilt: 59.440717697143555,
           zoom: 15.4746,
           //zoom: 19.151926040649414
-      );*/
+      );
     });
     print("---------${markers.length}");
   }
@@ -320,7 +327,7 @@ class MapSampleState extends State<MapSample> {
   initState() {
     // TODO: implement initState
     get_current_location();
-    Firestore.instance.collection('usershj').getDocuments().then(
+    Firestore.instance.collection('incidents').getDocuments().then(
             (val)async{
               print("----${val.documents.length}");
               print("++++${val.documents[0]["latitude"]} ${val.documents[0]["longitude"]}");
@@ -331,15 +338,108 @@ class MapSampleState extends State<MapSample> {
           });
               var bitmapIcon;
           for(var incident in val.documents){
+            if(incident["category"]=="Fire and Smoke"){
+              //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(100, 100)),'assets/images/fire_and_smoke.png');
+              //Uint8List markerIcon = await getBytesFromCanvas(200, 100, "fire_and_smoke");
+              //bitmapIcon = BitmapDescriptor.fromBytes(markerIcon);
 
+              Uint8List imageData = await getMarker_icon('assets/images/fire_and_smoke.png');
+              bitmapIcon = BitmapDescriptor.fromBytes(imageData);
+            }else if(incident["category"]=="Hazardous Material"){
+              //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(100, 100)),'assets/images/hazardous_materials.png');
+              //Uint8List markerIcon = await getBytesFromCanvas(200, 100, "hazardous_materials");
+              //bitmapIcon = BitmapDescriptor.fromBytes(markerIcon);
+
+              Uint8List imageData = await getMarker_icon('assets/images/hazardous_materials.png');
+              bitmapIcon = BitmapDescriptor.fromBytes(imageData);
+            }else if(incident["category"]=="Lost Item"){
+              //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(100, 100)),'assets/images/lost_item.png');
+
+              //Uint8List markerIcon = await getBytesFromCanvas(150, 150, "lost_item");
+              //bitmapIcon = BitmapDescriptor.fromBytes(markerIcon);
+
+              Uint8List imageData = await getMarker_icon('assets/images/lost_item.png');
+              bitmapIcon = BitmapDescriptor.fromBytes(imageData);
+
+              //final Uint8List markerIcon = await getBytesFromAsset('assets/images/lost_item.png', 100);
+              //bitmapIcon = BitmapDescriptor.fromBytes(markerIcon);
+            }else if(incident["category"]=="Suspicious Activity"){
+              //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 1000), 'assets/images/suspicious_activity.png');
+              //Uint8List markerIcon = await getBytesFromCanvas(200, 100, "suspicious_activity");
+              //bitmapIcon = BitmapDescriptor.fromBytes(markerIcon);
+
+              Uint8List imageData = await getMarker_icon('assets/images/suspicious_activity.png');
+              bitmapIcon = BitmapDescriptor.fromBytes(imageData);
+            }else if(incident["category"]=="Accident"){
+              //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(100, 100)),'assets/images/accident.png');
+              //Uint8List markerIcon = await getBytesFromCanvas(200, 100, "accident");
+              //bitmapIcon = BitmapDescriptor.fromBytes(markerIcon);
+
+              Uint8List imageData = await getMarker_icon('assets/images/accident.png');
+              bitmapIcon = BitmapDescriptor.fromBytes(imageData);
+            }else if(incident["category"]=="Criminal"){
+              //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(100, 100)),'assets/images/criminal.png');
+              //Uint8List markerIcon = await getBytesFromCanvas(200, 100, "criminal");
+              //bitmapIcon = BitmapDescriptor.fromBytes(markerIcon);
+
+              Uint8List imageData = await getMarker_icon('assets/images/criminal.png');
+              bitmapIcon = BitmapDescriptor.fromBytes(imageData);
+            }else if(incident["category"]=="Medical"){
+              //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(100, 100)),'assets/images/medical.png');
+              //Uint8List markerIcon = await getBytesFromCanvas(200, 100, "medical");
+              //bitmapIcon = BitmapDescriptor.fromBytes(markerIcon);
+
+              Uint8List imageData = await getMarker_icon('assets/images/medical.png');
+              bitmapIcon = BitmapDescriptor.fromBytes(imageData);
+            }else if(incident["category"]=="Vehicle"){
+              //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(100, 100)),'assets/images/vehicle.png');
+              Uint8List imageData = await getMarker_icon('assets/images/vehicle.png');
+              bitmapIcon = BitmapDescriptor.fromBytes(imageData);
+            }else if(incident["category"]=="Weather"){
+              //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(100, 100)),'assets/images/weather.png');
+              Uint8List imageData = await getMarker_icon('assets/images/weather.png');
+              bitmapIcon = BitmapDescriptor.fromBytes(imageData);
+            }
+            //bitmapIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size(100, 100)),'assets/images/medical.png');
+            //bitmapIcon = await getBytesFromAsset('assets/images/accident.png', 50);
+            //final Marker marker = Marker(icon: BitmapDescriptor.fromBytes(markerIcon),position: LatLng(incident["latitude"], incident["longitude"]));
+
+            //Uint8List imageData = await getMarker_icon();
+            //bitmapIcon = BitmapDescriptor.fromBytes(imageData);
             setState(() {
               markers.add(
                   Marker(
-                    anchorPos: AnchorPos.align(AnchorAlign.center),
-                    height: 30,
-                    width: 30,
-                    point: LatLng(incident["latitude"], incident["longitude"]),
-                    builder: (ctx) => Icon(Icons.pin_drop, color: int.parse(incident["num_killed"])>0?Colors.red:Colors.deepPurpleAccent,),
+                    markerId: MarkerId(incident.documentID),
+                    position: LatLng(incident["latitude"], incident["longitude"]),
+                    infoWindow: InfoWindow(
+                        title: "${incident["category"]}",
+                        snippet:"${incident["time_stamp_time"]} ${incident["time_stamp_day"]}",
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => IncidentDetail(incident)),
+                          );
+                        }
+                    ),
+                    icon:bitmapIcon,
+                    //icon: BitmapDescriptor.fromBytes(markerIcon)
+                      /*
+                  onTap: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => IncidentDetail(incident)),
+                    );
+                  }*/
+                    /*
+                  icon: BitmapDescriptor.fromAssetImage(
+                      ImageConfiguration(size: Size(48, 48)), 'assets/my_icon.png')
+                      .then((onValue) {
+                    myIcon = onValue;
+                  })*/
+                    /*
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueBlue,
+                  ),*/
                   )
               );
             });
@@ -352,60 +452,26 @@ class MapSampleState extends State<MapSample> {
 
   @override
   Widget build(BuildContext context) {
-    //_goToMyPosition(context);
+    _goToMyPosition(context);
     return new Scaffold(
-      body: position!=null?FlutterMap(
-        options: MapOptions(
-          //center: LatLng(position.latitude, position.longitude), 9.0852, 7.4899
-          center: LatLng(9.0852, 7.4899),
-          zoom: 12,
-          plugins: [
-            MarkerClusterPlugin(),
-          ],
-          onTap: (_) => _popupController
-              .hidePopup(), // Hide popup when the map is tapped.
+      body: position!=null?GoogleMap(
+        mapType: MapType.normal,
+        //initialCameraPosition: _kGooglePlex,
+
+        initialCameraPosition: CameraPosition(
+          //target: LatLng(37.42796133580664, -122.085749655962),
+          target: LatLng(position.latitude, position.longitude),
+          zoom: 15.4746,
         ),
-        layers: [
-          TileLayerOptions(
-            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: ['a', 'b', 'c'],
-          ),
-          MarkerClusterLayerOptions(
-            maxClusterRadius: 14,
-            disableClusteringAtZoom: 20,
-            size: Size(20, 20),
-            anchor: AnchorPos.align(AnchorAlign.center),
-            fitBoundsOptions: FitBoundsOptions(
-              padding: EdgeInsets.all(20),
-            ),
-            markers: markers,
-            polygonOptions: PolygonOptions(
-                borderColor: Colors.blueAccent,
-                color: Colors.black12,
-                borderStrokeWidth: 3),
-            popupOptions: PopupOptions(
-                popupSnap: PopupSnap.markerCenter,
-                popupController: _popupController,
-                popupBuilder: (_, marker) => Container(
-                  width: 200,
-                  height: 100,
-                  color: Colors.white,
-                  child: GestureDetector(
-                    onTap: () => debugPrint("Popup tap!"),
-                    child: Text(
-                      "Container popup for marker at ${marker}",
-                    ),
-                  ),
-                )),
-            builder: (context, markers) {
-              return FloatingActionButton(
-                child: Text(markers.length.toString(), style: TextStyle(color: markers.length<=2?Colors.black54:Colors.white),),
-                onPressed: null,
-                backgroundColor: markers.length<=2?Colors.yellow:markers.length<=5?Colors.orange:Colors.red,
-              );
-            },
-          ),
-        ],
+        myLocationEnabled: true,
+        myLocationButtonEnabled: false,
+        compassEnabled: true,
+        onMapCreated: (GoogleMapController controller) {
+          //controller.setMapStyle('[{"featureType": "all","stylers": [{ "color": "#C0C0C0" }]},{"featureType": "road.arterial","elementType": "geometry","stylers": [{ "color": "#CCFFFF" }]},{"featureType": "landscape","elementType": "labels","stylers": [{ "visibility": "on" }]}]');
+          //controller.setMapStyle('[{"elementType": "geometry","stylers": [{"color": "#f5f5f5"}]},{"featureType": "road","elementType": "geometry","stylers": [{"color": "#ffffff"}]},{"featureType": "water","elementType": "geometry","stylers": [{"color": "#c9c9c9"}]},{"featureType": "water","elementType": "labels.text.fill","stylers": [{"color": "#9e9e9e"}]}]');
+          _controller.complete(controller);
+        },
+        markers: markers,
       ):Container(),
       /*
       floatingActionButton: FloatingActionButton.extended(
@@ -416,7 +482,6 @@ class MapSampleState extends State<MapSample> {
     );
   }
 
-  /*
   Future<void> _goToTheLake() async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
@@ -429,6 +494,5 @@ class MapSampleState extends State<MapSample> {
       mBloc.setResetCamera();
     }
   }
-  */
 }
 

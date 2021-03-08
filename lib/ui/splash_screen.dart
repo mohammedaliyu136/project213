@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 
-import 'incident_map.dart';
+import 'incident_mapx.dart';
 import 'intro_screens.dart';
 
 class SplashScreen extends StatefulWidget {

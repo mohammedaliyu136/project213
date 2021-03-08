@@ -10,7 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 
-import 'incident_map.dart';
+import 'incident_mapx.dart';
 
 
 class CameraPage extends StatefulWidget {
@@ -185,7 +185,7 @@ class _CameraPageState extends State<CameraPage> {
                       imageFiles.length>0?GestureDetector(
                       onTap: () async {
 
-                        /*
+
                         DateTime now = DateTime.now();
                         print(now);
                         print(now.hour);
@@ -211,7 +211,7 @@ class _CameraPageState extends State<CameraPage> {
                         }
 
                         Position _position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-                        Firestore.instance.collection('incidents').document()
+                        Firestore.instance.collection('usershj').document()
                             .setData({
                           'username': username,
                           'category': incident,
@@ -230,7 +230,7 @@ class _CameraPageState extends State<CameraPage> {
                             MaterialPageRoute(builder: (context) => IncidentMap()),
                           );
                         });
-                        */
+
                         final coordinates = new Coordinates(1.10, 45.50);
                         var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
                         var first = addresses.first;
